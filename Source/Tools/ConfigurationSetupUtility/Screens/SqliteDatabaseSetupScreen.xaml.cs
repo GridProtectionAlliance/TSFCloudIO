@@ -257,21 +257,21 @@ namespace ConfigurationSetupUtility.Screens
             try
             {
                 // Set a default path for SQLite database that will allow non-restrictive read/write access
-                // *** For the ProjectAlpha, we default this to ConfigurationCache folder so that DFS replication can be simple ***
+                // *** For the TSFCloudIO, we default this to ConfigurationCache folder so that DFS replication can be simple ***
                 string sqliteDatabaseFilePath = string.Format("{0}{1}ConfigurationCache{1}", FilePath.GetAbsolutePath(""), Path.DirectorySeparatorChar);
 
-                //string sqliteDatabaseFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectAlpha\\");
+                //string sqliteDatabaseFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TSFCloudIO\\");
 
                 // Make sure path exists
 
                 if (!Directory.Exists(sqliteDatabaseFilePath))
                     Directory.CreateDirectory(sqliteDatabaseFilePath);
 
-                m_sqliteDatabaseFilePathTextBox.Text = Path.Combine(sqliteDatabaseFilePath, migrate ? App.SqliteConfigv2 : App.BaseSqliteConfig); //"ProjectAlpha" + App.DatabaseVersionSuffix + ".db" : "ProjectAlpha.db");
+                m_sqliteDatabaseFilePathTextBox.Text = Path.Combine(sqliteDatabaseFilePath, migrate ? App.SqliteConfigv2 : App.BaseSqliteConfig); //"TSFCloudIO" + App.DatabaseVersionSuffix + ".db" : "TSFCloudIO.db");
             }
             catch
             {
-                m_sqliteDatabaseFilePathTextBox.Text = migrate ? App.SqliteConfigv2 : App.BaseSqliteConfig; //"ProjectAlpha" + App.DatabaseVersionSuffix + ".db" : "ProjectAlpha.db";
+                m_sqliteDatabaseFilePathTextBox.Text = migrate ? App.SqliteConfigv2 : App.BaseSqliteConfig; //"TSFCloudIO" + App.DatabaseVersionSuffix + ".db" : "TSFCloudIO.db";
             }
 
             if (!m_state.ContainsKey("sqliteDatabaseFilePath"))

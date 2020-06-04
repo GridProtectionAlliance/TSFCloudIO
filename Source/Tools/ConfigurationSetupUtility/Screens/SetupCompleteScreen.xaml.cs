@@ -56,7 +56,7 @@ namespace ConfigurationSetupUtility.Screens
         // Fields
 
         private Dictionary<string, object> m_state;
-        private ServiceController m_ProjectAlphaServiceController;
+        private ServiceController m_TSFCloudIOServiceController;
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace ConfigurationSetupUtility.Screens
         public SetupCompleteScreen()
         {
             InitializeComponent();
-            InitializeProjectAlphaServiceController();
+            InitializeTSFCloudIOServiceController();
             InitializeServiceCheckboxState();
             InitializeManagerCheckboxState();
         }
@@ -243,53 +243,53 @@ namespace ConfigurationSetupUtility.Screens
                         // Remove old configuration file settings
                         try
                         {
-                            ConfigurationFile ProjectAlphaConfig = ConfigurationFile.Open("ProjectAlpha.exe.config");
+                            ConfigurationFile TSFCloudIOConfig = ConfigurationFile.Open("TSFCloudIO.exe.config");
 
                             // Some of the crypto settings elements were renamed for consistency, remove the old ones
-                            CategorizedSettingsElementCollection cryptoSection = ProjectAlphaConfig.Settings["cryptographyServices"];
+                            CategorizedSettingsElementCollection cryptoSection = TSFCloudIOConfig.Settings["cryptographyServices"];
                             cryptoSection.Remove("RetryDelayInterval");
                             cryptoSection.Remove("MaximumRetryAttempts");
 
-                            // Example connection settings are updated between builds - remove the section and ProjectAlpha will add back the latest
-                            ProjectAlphaConfig.Settings.Remove("exampleConnectionSettings");
+                            // Example connection settings are updated between builds - remove the section and TSFCloudIO will add back the latest
+                            TSFCloudIOConfig.Settings.Remove("exampleConnectionSettings");
 
                             // Data publisher categories are now always lower case (such that code references are case insensitive)
-                            ProjectAlphaConfig.Settings.Remove("dataPublisher");
+                            TSFCloudIOConfig.Settings.Remove("dataPublisher");
 
-                            ProjectAlphaConfig.Save(ConfigurationSaveMode.Full);
+                            TSFCloudIOConfig.Save(ConfigurationSaveMode.Full);
                         }
                         catch
                         {
                             // Just continue on errors with removal of old settings - this is not critical
                         }
 
-                        // If the user requested it, start or restart the ProjectAlpha service
+                        // If the user requested it, start or restart the TSFCloudIO service
                         if (m_serviceStartCheckBox.IsChecked.Value)
                         {
                             try
                             {
 #if DEBUG
-                                Process.Start("ProjectAlpha.exe");
+                                Process.Start("TSFCloudIO.exe");
 #else
-                                m_ProjectAlphaServiceController.Start();
+                                m_TSFCloudIOServiceController.Start();
 #endif
                             }
                             catch
                             {
-                                MessageBox.Show("The configuration utility was unable to start ProjectAlpha service, you will need to manually start the service.", "Cannot Start Windows Service", MessageBoxButton.OK, MessageBoxImage.Information);
+                                MessageBox.Show("The configuration utility was unable to start TSFCloudIO service, you will need to manually start the service.", "Cannot Start Windows Service", MessageBoxButton.OK, MessageBoxImage.Information);
                             }
                         }
 
-                        // If the user requested it, start the ProjectAlpha Manager.
+                        // If the user requested it, start the TSFCloudIO Manager.
                         if (m_managerStartCheckBox.IsChecked.Value)
                         {
-                            Process.Start("ProjectAlphaManager.exe");
+                            Process.Start("TSFCloudIOManager.exe");
                         }
                     }
                     finally
                     {
-                        if (m_ProjectAlphaServiceController != null)
-                            m_ProjectAlphaServiceController.Close();
+                        if (m_TSFCloudIOServiceController != null)
+                            m_TSFCloudIOServiceController.Close();
                     }
                 }
 
@@ -311,7 +311,7 @@ namespace ConfigurationSetupUtility.Screens
                 m_state = value;
 
                 if (Convert.ToBoolean(m_state["restarting"]))
-                    m_serviceStartCheckBox.Content = "Restart the ProjectAlpha";
+                    m_serviceStartCheckBox.Content = "Restart the TSFCloudIO";
             }
         }
 
@@ -329,36 +329,36 @@ namespace ConfigurationSetupUtility.Screens
 
         #region [ Methods ]
 
-        // Initializes the ProjectAlpha service controller.
-        private void InitializeProjectAlphaServiceController()
+        // Initializes the TSFCloudIO service controller.
+        private void InitializeTSFCloudIOServiceController()
         {
             ServiceController[] services = ServiceController.GetServices();
-            m_ProjectAlphaServiceController = services.SingleOrDefault(svc => string.Compare(svc.ServiceName, "ProjectAlpha", true) == 0);
+            m_TSFCloudIOServiceController = services.SingleOrDefault(svc => string.Compare(svc.ServiceName, "TSFCloudIO", true) == 0);
         }
 
-        // Initializes the state of the ProjectAlpha service checkbox.
+        // Initializes the state of the TSFCloudIO service checkbox.
         private void InitializeServiceCheckboxState()
         {
 #if DEBUG
-            bool serviceInstalled = File.Exists("ProjectAlpha.exe");
+            bool serviceInstalled = File.Exists("TSFCloudIO.exe");
 #else
-            bool serviceInstalled = m_ProjectAlphaServiceController != null;
+            bool serviceInstalled = m_TSFCloudIOServiceController != null;
 #endif
             m_serviceStartCheckBox.IsChecked = serviceInstalled;
             m_serviceStartCheckBox.IsEnabled = serviceInstalled;
         }
 
-        // Initializes the state of the ProjectAlpha Manager checkbox.
+        // Initializes the state of the TSFCloudIO Manager checkbox.
         private void InitializeManagerCheckboxState()
         {
-            bool managerInstalled = File.Exists("ProjectAlphaManager.exe");
+            bool managerInstalled = File.Exists("TSFCloudIOManager.exe");
             m_managerStartCheckBox.IsChecked = managerInstalled;
             m_managerStartCheckBox.IsEnabled = managerInstalled;
         }
 
         private void ValidateGrafanaBindings()
         {
-            string configFileName = Path.Combine(Directory.GetCurrentDirectory(), "ProjectAlpha.exe.config");
+            string configFileName = Path.Combine(Directory.GetCurrentDirectory(), "TSFCloudIO.exe.config");
 
             if (!File.Exists(configFileName))
                 return;
@@ -467,7 +467,7 @@ namespace ConfigurationSetupUtility.Screens
 
         private void ValidateInternalDataPublisher()
         {
-            string configFile = Directory.GetCurrentDirectory() + "\\ProjectAlpha.exe.config";
+            string configFile = Directory.GetCurrentDirectory() + "\\TSFCloudIO.exe.config";
             string configText = File.ReadAllText(configFile);
             string replacedConfigText = configText.Replace("<datapublisher>", "<internaldatapublisher>").Replace("</datapublisher>", "</internaldatapublisher>");
             File.WriteAllText(configFile, replacedConfigText);
